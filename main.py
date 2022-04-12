@@ -27,9 +27,10 @@ library[shelf][1].append(author)
 
 print(library)
 # how to grab the description of book 2
-print(library['shelf'][1][1])
+print(library[shelf][1][1])
 # how to grab the author of book 1
-print(library['shelf'][0][2])
+print(library[shelf][0][2])
+print(library[shelf])
 
 # library['shelf'] -> {[book1... dic1...],[],[]....} everything in shelf
 # library['shelf'][0] -> book1... dic1... book1's stuff
