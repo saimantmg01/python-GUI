@@ -35,5 +35,3 @@ print(library[shelf])
 # library['shelf'] -> {[book1... dic1...],[],[]....} everything in shelf
 # library['shelf'][0] -> book1... dic1... book1's stuff
 # library['shelf'][0][0] -> just the name of book1
-
-#this is a push
