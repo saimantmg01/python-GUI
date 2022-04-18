@@ -8,8 +8,8 @@ library[shelf] = {}
 book = input("name this book: ")
 # Space for description and author
 library[shelf][book] = []
-d = input("description for book: ")
-a = input("Author for book: ")
+description = input("description for book: ")
+author = input("author for book: ")
 library[shelf][book].append(d)
 library[shelf][book].append(a)
 
@@ -21,9 +21,7 @@ library[shelf][book].append(a)
 #|
 # to make another shelf you need to do this process again
 
-
 #for loop here if you want
-
 
 # library['shelf'] -> {[book1... dic1...],[],[]....} everything in shelf
 # library['shelf'][0] -> book1... dic1... book1's stuff
