@@ -1,7 +1,7 @@
 import csv
 # Code here
 # Open a file for writing
-with open('csv file here', newline='') as f:
+with open('./test.csv', newline='') as f:
     reader = csv.reader(f)
     data = list(reader)
 library = {}
