@@ -110,7 +110,8 @@ def main():
     if do_something == 3:
         print("Thanks for visiting the library")
         quit()
-main()
+# main()
 # library['shelf'] -> {[book1... dic1...],[],[]....} everything in shelf
 # library['shelf'][0] -> book1... dic1... book1's stuff
 # library['shelf'][0][0] -> just the name of book1
+# test here type somthing

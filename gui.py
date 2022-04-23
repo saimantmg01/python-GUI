@@ -1,12 +1,10 @@
 import csv
 import tkinter as tk
 from parser_file import csv_reader
-
 #creating a root window
 window = tk.Tk()
 
 #functions
-#calling a action when button is clicked
 def display():
     #library = {'shelf1': {'Curious George': ['monkey', 'Christopher'], 'Henry and Mudge': ['About a boy and his dog', 'Bob'], 'Diary of a wimpy kid': ['kid writes diary', 'Daniel'], 'Bone': ['human bones', 'Michelle']}}
     
@@ -29,7 +27,7 @@ background_image = tk.PhotoImage(file='library.png')
 background_label = tk.Label(window, image=background_image)
 background_label.place(relwidth=1, relheight=1)
 
-#label 
+
 title = tk.Label(window, text= "Welcome to our library!!!!")
 title.pack()
 
