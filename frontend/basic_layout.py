@@ -10,6 +10,23 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+class Book_Icon():
+    def __init__(self, BookScrollAreaWidgetContents):
+        super().__init__()
+        self.scrollArea = BookScrollAreaWidgetContents
+        self.create_book()
+
+    def create_book(self):
+        self.BookImage = QtWidgets.QLabel(self.scrollArea)
+        self.BookImage.setGeometry(QtCore.QRect(40, 30, 91, 71))
+        self.BookImage.setText("")
+        self.BookImage.setPixmap(QtGui.QPixmap("book.png"))
+        self.BookImage.setScaledContents(True)
+        self.BookImage.setObjectName("BookImage")
+        self.Book1_label = QtWidgets.QLabel(self.scrollArea)
+        self.Book1_label.setGeometry(QtCore.QRect(70, 90, 51, 31))
+        self.Book1_label.setObjectName("Book1_label")
+   
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -69,15 +86,8 @@ class Ui_MainWindow(object):
         self.SelectBooks.setObjectName("SelectBooks")
         self.SelectBooks.addItem("")
         self.SelectBooks.addItem("")
-        self.BookImage = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
-        self.BookImage.setGeometry(QtCore.QRect(40, 30, 91, 71))
-        self.BookImage.setText("")
-        self.BookImage.setPixmap(QtGui.QPixmap("book.png"))
-        self.BookImage.setScaledContents(True)
-        self.BookImage.setObjectName("BookImage")
-        self.Book1_label = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
-        self.Book1_label.setGeometry(QtCore.QRect(70, 90, 51, 31))
-        self.Book1_label.setObjectName("Book1_label")
+        self.BookIcon = Book_Icon(self.BookScrollAreaWidgetContents)
+        
         self.BookLabel = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
         self.BookLabel.setGeometry(QtCore.QRect(220, 0, 47, 13))
         self.BookLabel.setObjectName("BookLabel")
@@ -110,7 +120,7 @@ class Ui_MainWindow(object):
         self.SelectBooks.setCurrentText(_translate("MainWindow", "Library Books"))
         self.SelectBooks.setItemText(0, _translate("MainWindow", "Library Books"))
         self.SelectBooks.setItemText(1, _translate("MainWindow", "User Books"))
-        self.Book1_label.setText(_translate("MainWindow", "Book 1"))
+        self.BookIcon.Book1_label.setText(_translate("MainWindow", "Book 1"))
         self.BookLabel.setText(_translate("MainWindow", "Books"))
         self.PreviewLabel.setText(_translate("MainWindow", "Preview"))
 
