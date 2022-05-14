@@ -1,11 +1,11 @@
 from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow, QButtonGroup, QVBoxLayout, QLabel, QGroupBox, QGridLayout, QRadioButton
 import sys
 
 class Main_UI(QMainWindow):
     def __init__(self):
         super(Main_UI, self).__init__()
-        self.resize(830, 660)
+        self.setFixedSize(830, 660)
         self.setWindowTitle("LIBRARY-GUI")
         #stackedwidget to stack different widget on each other
         self.stackedWidget = QtWidgets.QStackedWidget(self)
@@ -115,28 +115,91 @@ class Main_UI(QMainWindow):
         self.BookWidget = QtWidgets.QScrollArea(self.Display)
         self.BookWidget.setGeometry(QtCore.QRect(10, 20, 511, 381))
         self.BookWidget.setWidgetResizable(True)
-        self.BookScrollAreaWidgetContents = QtWidgets.QWidget()
-        self.BookScrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 509, 379))
-        self.SelectBooks = QtWidgets.QComboBox(self.BookScrollAreaWidgetContents)
-        self.SelectBooks.setGeometry(QtCore.QRect(370, 0, 111, 22))
-        self.SelectBooks.setEditable(True)
-        self.SelectBooks.addItem("")
-        self.SelectBooks.addItem("")
-        self.BookImage = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
-        self.BookImage.setGeometry(QtCore.QRect(40, 30, 91, 71))
-        self.BookImage.setText("")
-        self.BookImage.setPixmap(QtGui.QPixmap("book.png"))
-        self.BookImage.setScaledContents(True)
-        self.Book1_label = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
-        self.Book1_label.setGeometry(QtCore.QRect(70, 90, 51, 31))
-        self.BookLabel = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
+
+        ########
+        #adds all the books retrieved from the back end to book widget
+        self.data = self.getLibraryInfo()
+        self.ButttonGroup  = QButtonGroup(self);
+
+        self.ButttonGroup.buttonClicked[int].connect(self.show_content)
+
+        self.BookGridLayout = self._createBookGrid()
+        self.BookWidget.setLayout(self.BookGridLayout)
+        self.BookLabel = QtWidgets.QLabel(self.BookWidget)
         self.BookLabel.setGeometry(QtCore.QRect(220, 0, 47, 13))
-        self.BookWidget.setWidget(self.BookScrollAreaWidgetContents)
 
         # add Display Widget on stacked widget
         self.stackedWidget.addWidget(self.Display)
 
+    def getLibraryInfo(self):
+        data = {'Shelf1': {'Catcher in the Rye': ['Fiction', 'J.D. Salinger'],
+            'Don Quixote': ['Fiction', 'Miguel de Cervantes'],
+            'One Hundred Years of Solitude': ['Fiction',
+                                            'Gabriel Garcia Marquez']},
+                'Shelf2': {'Hamlet': ['Fiction', 'William Shakespeare'],
+                            'Moby Dick': ['Fiction', 'Herman Melville'],
+                            'Odyssey': ['Fiction', 'Homer'],
+                            'The Great Gatsby': ['Fiction', 'F.Scott Fitzgerald'],
+                            'War and Peace ': ['Fiction', 'Leo Tolstoy']},
+                'Shelf3': {'The Complete Works of Plato': ['Non Fiction', 'Plato'],
+                            'The Diary of a Young Girl': ['Non fiction', 'Anne Frank'],
+                            'Walden': ['Non fiction', 'Henry David Thoreau']}}
+                        
+        return data
 
+   
+    
+    def _createBookGrid(self):
+        self.icons = {}
+        GridLayout = QGridLayout()
+        counter = 0
+    
+        # data = self.getLibraryInfo()
+        for row, books in self.data.items():
+            row = int(row[-1]) - 1
+            for col, info in enumerate(books.items()):
+                bookName = info[0]
+
+                image = QLabel()
+                image.setText("")
+                image.setPixmap(QtGui.QPixmap("book.png"))
+                image.setScaledContents(True)
+                image.setFixedSize(70, 70)
+
+                image.setObjectName(bookName)
+
+        
+                box = QGroupBox(bookName)
+                boxLayout = QVBoxLayout()
+                box.setLayout(boxLayout)
+            
+              
+            
+
+                boxLayout.addWidget(image)
+
+                button = QRadioButton()
+                button.setText("")
+                self.ButttonGroup.addButton(button, counter);
+                counter+=1
+                boxLayout.addWidget(button)
+
+                self.icons[bookName] =  box
+                
+                GridLayout.addWidget(self.icons[bookName], row, col)
+        GridLayout.setGeometry(QtCore.QRect(530, 20, 271, 171))
+        
+
+        return GridLayout
+
+        
+    def show_content(self, id):
+        counter = 0
+        for _, books in self.data.items():
+            for _, info in enumerate(books.items()):
+                if counter == id:
+                    print(info)
+                counter+=1
 
     def showDisplay(self):
         #change the current widget in stacked widget to display widget window
@@ -161,14 +224,17 @@ class Main_UI(QMainWindow):
         self.pushButton.adjustSize()
         self.UserWidget.setTitle("User")
         self.PreviewContents.setText("contents")
-        self.SelectBooks.setCurrentText("Library Books")
-        self.SelectBooks.setItemText(0, "Library Books")
-        self.SelectBooks.setItemText(1, "User Books")
-        self.Book1_label.setText("Book 1")
+        self.promptlabel.setText("Name: ")
+     
+    #books widget text
+        # self.SelectBooks.setCurrentText("Library Books")
+        # self.SelectBooks.setItemText(0, "Library Books")
+        # self.SelectBooks.setItemText(1, "User Books")
+        # self.Book1_label.setText("Book 1")
         self.BookLabel.setText("Books")
         self.PreviewLabel.setText("Preview")
 
-        self.promptlabel.setText("Name: ")
+        
 
 
 def window():
