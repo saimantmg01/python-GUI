@@ -43,9 +43,9 @@ def take_out():
         i = i-1
         print(f"You chose, {box[i]}")
         # author
-        print(f"by {library[shelf][box[i]][0]}")
+        print(f"by {library[shelf][box[i]][1]}")
         # description
-        print(f"it is about {library[shelf][box[i]][1]}")
+        print(f"it is about {library[shelf][box[i]][0]}")
         book = box[i]
         hand[book] = []
         hand[book].append(library[shelf][box[i]][0])
