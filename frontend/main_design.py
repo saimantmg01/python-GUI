@@ -125,7 +125,7 @@ class Main_UI(QMainWindow):
         self.BookImage = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
         self.BookImage.setGeometry(QtCore.QRect(40, 30, 91, 71))
         self.BookImage.setText("")
-        self.BookImage.setPixmap(QtGui.QPixmap("book.png"))
+        self.BookImage.setPixmap(QtGui.QPixmap("./assets/book.png"))
         self.BookImage.setScaledContents(True)
         self.Book1_label = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
         self.Book1_label.setGeometry(QtCore.QRect(70, 90, 51, 31))
