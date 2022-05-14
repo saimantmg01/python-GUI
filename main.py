@@ -94,7 +94,57 @@ def put_in():
         keep_going = input('Do you want to put in another book yes = y or no = n: ')
         if keep_going == 'n':
             break
+
+#gives position of book in list for review functions
+def find_book(name, list):
+    for n, item in enumerate(list):
+        if item[0] == name:
+            return n
         
+#add inputted reviews to a book in the csv 
+def add_review(book,review):
+    l = []
+    with open("test.csv") as f:
+        for i in f:
+            l.append(i.split(','))
+    book = find_book(book,l)
+    if len(l[book]) < 4:
+        l[book].append(review + '\n')
+        l[book][2] = l[book][2].replace('\n','')
+    else:
+        l[book][3] = l[book][3].replace('\n','') + f'|{review}' + '\n'
+    print(l)
+    print(find_book("Bone",l))
+    print(l)
+    with open("test.csv",'w') as f:
+        for i in l:
+            f.write(','.join(i))
+
+#get the reviews for a current book - returns a list
+def get_reviews(book):
+    l = []
+    with open("test.csv") as f:
+        for i in f:
+            l.append(i.split(','))
+    info = l[find_book(book,l)]
+    if len(info) < 4:
+        return ''
+    return info[3].split('|')
+
+#removes all reviews from a book
+def clear_reviews(book):
+    l = []
+    with open("test.csv") as f:
+        for i in f:
+            l.append(i.split(','))
+    if len(l[find_book(book,l)]) > 3:
+        l[find_book(book,l)] = l[find_book(book,l)][:3]
+        l[find_book(book,l)][2] += '\n'
+    with open("test.csv",'w') as f:
+        for i in l:
+            f.write(','.join(i))
+
+
 def main():
     do_something = 0
     while do_something != 3:
