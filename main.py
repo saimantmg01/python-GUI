@@ -129,7 +129,7 @@ def get_reviews(book):
     info = l[find_book(book,l)]
     if len(info) < 4:
         return ''
-    return info[3].split('|')
+    return [i.replace('\n','') for i in info[3].split('|')]
 
 #removes all reviews from a book
 def clear_reviews(book):
@@ -165,3 +165,4 @@ def main():
 # library['shelf'][0] -> book1... dic1... book1's stuff
 # library['shelf'][0][0] -> just the name of book1
 # test here type somthing
+# print(get_reviews('Bone'))
