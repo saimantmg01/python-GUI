@@ -125,7 +125,7 @@ class Main_UI(QMainWindow):
         self.BookImage = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
         self.BookImage.setGeometry(QtCore.QRect(40, 30, 91, 71))
         self.BookImage.setText("")
-        self.BookImage.setPixmap(QtGui.QPixmap("./assets/book.png"))
+        self.BookImage.setPixmap(QtGui.QPixmap("book.png"))
         self.BookImage.setScaledContents(True)
         self.Book1_label = QtWidgets.QLabel(self.BookScrollAreaWidgetContents)
         self.Book1_label.setGeometry(QtCore.QRect(70, 90, 51, 31))
@@ -146,6 +146,7 @@ class Main_UI(QMainWindow):
 
     def settingtext(self):
         self.label1.setText("Welcome to World\'s Best Library")
+        self.label1.adjustSize()
         self.label2.setText("What is your name?")
         self.input.setPlaceholderText("Type your name...")
         self.SubmitButton.setText("Submit")
