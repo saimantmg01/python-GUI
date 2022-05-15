@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow, QButtonGroup, QVBoxLayout, QLabel, QGroupBox, QGridLayout, QRadioButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow, QButtonGroup, QVBoxLayout, QLabel, QGroupBox, QGridLayout, QRadioButton, QListView, QListWidget, QComboBox
 import sys
 from main import *
 
@@ -39,6 +39,15 @@ class Main_UI(QMainWindow):
         #when name is submitted go to main content which shows library contents, history and others
         self.SubmitButton.clicked.connect(self.showDisplay)
         self.TakeOutBookButton.clicked.connect(self.takeOutBook)
+        self.pushButton.clicked.connect(self.preview_content)
+        self.SelectBooks.activated.connect(self.handleComboSelection)
+    
+    def handleComboSelection(self, id):
+        if id == 0:
+            print("you have selected library books")
+        elif id == 1:
+            print("you have selected user books")
+        
     
     def takeOutBook(self):
         if len(self.selectedBook) != 0:
@@ -63,11 +72,10 @@ class Main_UI(QMainWindow):
                 if qLabelName.objectName() == selectedBookName:
                     layout.removeWidget(widgetItem.widget())
                     self.BookGridLayout = self._createBookGrid()
-                    
-            
-            
-            
-            
+
+        
+            self.historyContent.addItem(f"-{self.input.text()} has taken out {selectedBookName}")
+            self.historyContent.adjustSize()   
 
             # take_out()
         else:
@@ -107,6 +115,8 @@ class Main_UI(QMainWindow):
         # add Library Widget on stacked widget
         self.stackedWidget.addWidget(self.Welcome)
 
+
+
     def Display_Window(self):
         #history widget
         self.HistoryWidget = QtWidgets.QScrollArea(self.Display)
@@ -116,6 +126,10 @@ class Main_UI(QMainWindow):
         self.HistoryScrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 269, 169))
         self.HistoryLabel = QtWidgets.QLabel(self.HistoryScrollAreaWidgetContents)
         self.HistoryLabel.setGeometry(QtCore.QRect(120, 0, 47, 13))
+        # self.historyContent = QtWidgets.QLabel()
+        self.historyContent = QtWidgets.QListWidget(self.HistoryScrollAreaWidgetContents)
+        # self.historyContent = QtWidgets.QLabel()
+        self.historyContent.setGeometry(QtCore.QRect(10, 15, 20, 10))
         self.HistoryWidget.setWidget(self.HistoryScrollAreaWidgetContents)
 
         #action widget
@@ -147,7 +161,7 @@ class Main_UI(QMainWindow):
         self.PreviewScrollAreaWidgetContents = QtWidgets.QWidget()
         self.PreviewScrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 509, 189))
         self.PreviewContents = QtWidgets.QLabel(self.PreviewScrollAreaWidgetContents)
-        self.PreviewContents.setGeometry(QtCore.QRect(150, 70, 311, 101))
+        self.PreviewContents.setGeometry(QtCore.QRect(12, 12, 100, 100))
         self.PreviewWidget.setWidget(self.PreviewScrollAreaWidgetContents)
         self.PreviewLabel = QtWidgets.QLabel(self.PreviewScrollAreaWidgetContents)
         self.PreviewLabel.setGeometry(QtCore.QRect(220, 0, 47, 13))
@@ -156,10 +170,17 @@ class Main_UI(QMainWindow):
         self.BookWidget = QtWidgets.QScrollArea(self.Display)
         self.BookWidget.setGeometry(QtCore.QRect(10, 20, 511, 381))
         self.BookWidget.setWidgetResizable(True)
+        
+        self.SelectBooks = QtWidgets.QComboBox(self.Display)
+        self.SelectBooks.setGeometry(QtCore.QRect(370, 0, 111, 22))
+        self.SelectBooks.setEditable(False)
+        self.SelectBooks.addItem("")
+        self.SelectBooks.addItem("")
 
         ########
         #adds all the books retrieved from the back end to book widget
         self.ButttonGroup  = QButtonGroup(self);
+        self.UserButttonGroup  = QButtonGroup(self);
 
         self.ButttonGroup.buttonClicked[int].connect(self.show_content)
 
@@ -198,9 +219,6 @@ class Main_UI(QMainWindow):
                 boxLayout = QVBoxLayout()
                 box.setLayout(boxLayout)
             
-              
-            
-
                 boxLayout.addWidget(image)
 
                 button = QRadioButton()
@@ -255,15 +273,19 @@ class Main_UI(QMainWindow):
         self.promptlabel.setText("Name: ")
      
     #books widget text
-        # self.SelectBooks.setCurrentText("Library Books")
-        # self.SelectBooks.setItemText(0, "Library Books")
-        # self.SelectBooks.setItemText(1, "User Books")
-        # self.Book1_label.setText("Book 1")
+        self.SelectBooks.setCurrentText("Library Books")
+        self.SelectBooks.setItemText(0, "Library Books")
+        self.SelectBooks.setItemText(1, "User Books")
+        #self.Book1_label.setText("Book 1")
         self.BookLabel.setText("Books")
         self.PreviewLabel.setText("Preview")
 
+    def preview_content(self):
+        if len(self.selectedBook) != 0:
+            book = self.selectedBook[0]
+            self.PreviewContents.setText(book[1][0])
+            self.PreviewContents.adjustSize()
         
-
 
 def window():
     #setup the app to run
