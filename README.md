@@ -16,6 +16,15 @@ Library-GUI is GUI application made using PyQt5 to be a library system where use
 - [PyQt5](https://pypi.org/project/PyQt5/)
 - [pyqt5-tools](https://pypi.org/project/pyqt5-tools/)
 
+### Setup
+To start the application, for macOS/Linux run 
+```
+python3 main_design.py
+```
+For windows run,
+```
+python main_design.py
+```
 
 ## Features
 ### Main Features
@@ -29,8 +38,8 @@ Library-GUI is GUI application made using PyQt5 to be a library system where use
 ### Additional Features
 - [X] Alert popups regarding user actions on following cases:
     - [X] When the user doesnot choose any book
-    - [X] When user try to return the book in library section
-    - [X] When user try to take out the book in user section
+    - [X] When user tries to return the book in library section
+    - [X] When user tries to take out the book in user section
     - [X] When user tries to preview the book without choosing it.
 - [X] Adding user book counts on user section.
 
