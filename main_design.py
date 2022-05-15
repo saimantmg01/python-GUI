@@ -8,37 +8,60 @@ from PyQt5.QtWidgets import (
                              QLabel,  
                              QGroupBox, 
                              QGridLayout, 
-                             QRadioButton, 
-                             QListView, 
-                             QListWidget, 
-                             QComboBox, 
+                             QRadioButton,  
                              QMessageBox
                             )
 import sys
 from main import *
 import csv
 
-
-class Library():
-    def __init__(self):
-        self.shelf  = 'shelf1'
-        self.libData = self.getLibData()
-        
-        
-    def getLibData(self):
-        with open('./test.csv', newline='') as f:
+#gets all the history of the books 
+def parseHistoryData():
+    with open('./history.csv', newline='') as f:
             reader = csv.reader(f)
             data = list(reader)
+    return data
 
-        library = {}
-        library[self.shelf] = {}
-        for n in range(-1, len(data[0])):
-            book = data[n][0]
-            # Space for author and description
-            library[self.shelf][book] = []
-            library[self.shelf][book].append(data[n][1])
-            library[self.shelf][book].append(data[n][2])
-        return library
+#parses the csv and returns the book information 
+def parseLibData():
+    with open('./test.csv', newline='') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+    shelf  = 'shelf1'
+    library = {}
+    library[shelf] = {}
+    for n in range(-1, len(data[0])):
+        book = data[n][0]
+        # Space for author and description
+        library[shelf][book] = []
+        library[shelf][book].append(data[n][1])
+        library[shelf][book].append(data[n][2])
+    return library
+
+#stores all the actions and updates the csv 
+class History():
+    def __init__(self):
+        self.historyData = parseHistoryData()
+
+    def returnLatestHistory(self):
+        if len(self.historyData) <= 8:
+            return self.historyData
+        else:
+            return self.historyData[-8:]
+
+    def updateData(self):
+        self.historyData = parseHistoryData()
+
+    def addHistoryCSV(self, user, actionType, item):
+        with open('./history.csv', 'a',newline="") as f:
+            writer_object = csv.writer(f)
+            writer_object.writerow([user, actionType, item])
+        self.updateData()
+#contains all of the books in the library
+class Library():
+    def __init__(self, libData):
+        self.shelf  = 'shelf1'
+        self.libData = libData
     
     def deleteLibData(self, bookName):
         if bookName in self.libData[self.shelf]:
@@ -47,7 +70,7 @@ class Library():
     def addLibData(self, bookName, info):
         self.libData[self.shelf][bookName] = info
 
-
+#contains all the books that the user has taken out
 class Hand():
     def __init__(self):
         self.books = {}
@@ -75,8 +98,10 @@ class Hand():
 class Main_UI(QMainWindow):
     def __init__(self):
         super(Main_UI, self).__init__()
-        self.library = Library()
+        self.library = Library(parseLibData())
         self.hand = Hand()
+        self.history = History()
+        
 
         self.setFixedSize(830, 660)
         self.setWindowTitle("LIBRARY-GUI")
@@ -92,6 +117,18 @@ class Main_UI(QMainWindow):
         self.currentScreen = "library"
         #run the entire code for application
         self.initUI()
+
+    def displayHistory(self):
+
+        historyBox = self.historyContent
+        historyBox.clear()
+        historyData = self.history.returnLatestHistory()
+ 
+        for elements in historyData:
+            user, actionType, book = elements
+            historyBox.addItem(f"{user} has {actionType} the book, {book}")
+            historyBox.adjustSize()
+        
  
  
     def initUI(self):
@@ -101,6 +138,9 @@ class Main_UI(QMainWindow):
         self.Display_Window()
         #put appropriate text for each Qlabel, comboboxes, placeholder for Qlineedit
         self.settingtext()
+
+        self.displayHistory()
+
        
         #set current default widget on stacked widget to be welcome page
         self.stackedWidget.setCurrentWidget(self.Welcome)
@@ -134,9 +174,11 @@ class Main_UI(QMainWindow):
                 self.library.addLibData(returnBook, returnBookInfo)
                 # library[Library.shelf][returnBook] = returnBookInfo
                 
+                self.history.addHistoryCSV(self.input.text(), 'returned', returnBook)
+                self.displayHistory()
 
-                self.historyContent.addItem(f"-{self.input.text()} has returned {returnBook}")
-                self.historyContent.adjustSize()
+                # self.historyContent.addItem(f"-{self.input.text()} has returned {returnBook}")
+                # self.historyContent.adjustSize()
                 self.update_user_label()
         elif len(self.selectedTakeOutBook) != 0:
             self.showPopup("return");
@@ -277,9 +319,10 @@ class Main_UI(QMainWindow):
             #     layout.removeWidget(widgetToRemove[0])
             self.BookGridLayout = self._createBookGrid()
             
-
-            self.historyContent.addItem(f"-{self.input.text()} has taken out {selectedBookName}")
-            self.historyContent.adjustSize()  
+            self.history.addHistoryCSV(self.input.text(), 'taken', selectedBookName)
+            self.displayHistory()
+            # self.historyContent.addItem(f"-{self.input.text()} has taken out {selectedBookName}")
+            # self.historyContent.adjustSize()  
             self.update_user_label()
             # take_out()
         elif len(self.selectedReturnBook) != 0:
