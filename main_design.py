@@ -16,10 +16,68 @@ from PyQt5.QtWidgets import (
                             )
 import sys
 from main import *
- 
+import csv
+
+
+class Library():
+    def __init__(self):
+        self.shelf  = 'shelf1'
+        self.libData = self.getLibData()
+        
+        
+    def getLibData(self):
+        with open('./test.csv', newline='') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+
+        library = {}
+        library[self.shelf] = {}
+        for n in range(-1, len(data[0])):
+            book = data[n][0]
+            # Space for author and description
+            library[self.shelf][book] = []
+            library[self.shelf][book].append(data[n][1])
+            library[self.shelf][book].append(data[n][2])
+        return library
+    
+    def deleteLibData(self, bookName):
+        if bookName in self.libData[self.shelf]:
+                del self.libData[self.shelf][bookName]
+    
+    def addLibData(self, bookName, info):
+        self.libData[self.shelf][bookName] = info
+
+
+class Hand():
+    def __init__(self):
+        self.books = {}
+    
+    def addItem(self, bookName, info):
+        self.books[bookName] = info
+    
+    def removeItem(self, bookName):
+        del self.books[bookName]
+
+    def getBookInfo(self, bookName):
+        return self.books[bookName];
+
+    def hasElement(self, bookName):
+        return bookName in self.books
+
+    def getNumberOfBooks(self):
+        counter = 0
+        for _ in self.books:
+            counter += 1
+        return counter
+        
+        
+    
 class Main_UI(QMainWindow):
     def __init__(self):
         super(Main_UI, self).__init__()
+        self.library = Library()
+        self.hand = Hand()
+
         self.setFixedSize(830, 660)
         self.setWindowTitle("LIBRARY-GUI")
         #stackedwidget to stack different widget on each other
@@ -60,9 +118,9 @@ class Main_UI(QMainWindow):
         if len(self.selectedReturnBook) != 0:
             returnBook = self.selectedReturnBook.pop()
             
-            if returnBook in hand:
-                returnBookInfo = hand[returnBook]
-                del hand[returnBook]
+            if self.hand.hasElement(returnBook):
+                returnBookInfo = self.hand.getBookInfo(returnBook)
+                self.hand.removeItem(returnBook)
 
                 layout = self.BookWidget.layout()
                 for i in range(layout.count()):
@@ -73,8 +131,8 @@ class Main_UI(QMainWindow):
                             widgetItem.widget().deleteLater()
                             break
 
-
-                library[Library.shelf][returnBook] = returnBookInfo
+                self.library.addLibData(returnBook, returnBookInfo)
+                # library[Library.shelf][returnBook] = returnBookInfo
                 
 
                 self.historyContent.addItem(f"-{self.input.text()} has returned {returnBook}")
@@ -112,7 +170,7 @@ class Main_UI(QMainWindow):
             self.clear_buttons()
             counter = 0
 
-            for row, books in library.items():
+            for row, books in self.library.libData.items():
                 row = int(row[-1]) - 1
                 for col, info in enumerate(books.items()):
                     bookName = info[0]
@@ -152,7 +210,7 @@ class Main_UI(QMainWindow):
             
             self.clear_grid(layout)     
             
-            for bookName, info in hand.items():
+            for bookName, info in self.hand.books.items():
                 col += 1
                 if col % 3 == 0 & col != 0:
                     col = 0
@@ -188,12 +246,10 @@ class Main_UI(QMainWindow):
         if len(self.selectedTakeOutBook) != 0:
             selectedBookName =  self.selectedTakeOutBook.pop()
 
-            
-
-            for _, books in library.items():
+            for _, books in self.library.libData.items():
                 for bookName, info in books.items():
                     if bookName == selectedBookName:
-                        hand[bookName] = info
+                        self.hand.addItem(bookName, info)
                         break;      
             
         
@@ -201,8 +257,9 @@ class Main_UI(QMainWindow):
             #user has this book
             # print(f'User has this books in possession: {hand}')
 
-            if selectedBookName in library[Library.shelf]:
-                del library[Library.shelf][selectedBookName]
+            self.library.deleteLibData(selectedBookName)
+            
+            
            
             layout = self.BookWidget.layout()
            
@@ -353,7 +410,7 @@ class Main_UI(QMainWindow):
         counter = 0
    
         # data = self.getLibraryInfo()
-        for row, books in library.items():
+        for row, books in self.library.libData.items():
             row = int(row[-1]) - 1
             for col, info in enumerate(books.items()):
                 bookName = info[0]
@@ -404,15 +461,7 @@ class Main_UI(QMainWindow):
             self.selectedReturnBook.append(selected)
         else:
             self.selectedReturnBook[0] = selected
-        # print(buttonPressed)
-        # counter = 0
-        # for bookName, info in hand.items():
-        #     if counter == id:
-        #         if len(self.selectedBook) == 0:
-        #             self.selectedBook.append(info)
-        #         else:
-        #             self.selectedBook[0] = info
-        #     counter+=1
+        
 
     def showDisplay(self):
         #change the current widget in stacked widget to display widget window
@@ -421,7 +470,7 @@ class Main_UI(QMainWindow):
  
     def update_user_label(self):
         #set text on promptlabel inside the User to bear name of what user entered in library screen
-        self.promptlabel.setText(f"Name:  {self.input.text()} \n Books: {len(hand.values())}")
+        self.promptlabel.setText(f"Name:  {self.input.text()} \n Books: {self.hand.getNumberOfBooks()}")
         self.promptlabel.adjustSize()
 
 
@@ -456,7 +505,7 @@ class Main_UI(QMainWindow):
         if len(self.selectedTakeOutBook) != 0:
             book = self.selectedTakeOutBook[0]
 
-            for value in library.values():
+            for value in self.library.libData.values():
                 if book in value:
                     info  = value[book][0]
                     self.PreviewContents.setText(info)
@@ -466,8 +515,8 @@ class Main_UI(QMainWindow):
 
         if len(self.selectedReturnBook) != 0:
             book = self.selectedReturnBook[0]
-            if book in hand:
-                info  = hand[book][0]
+            if self.hand.hasElement(book):
+                info  = self.hand.getBookInfo(book)[0]
                 self.PreviewContents.setText(info)
                 self.PreviewContents.adjustSize()
         elif len(self.selectedReturnBook) == 0 and self.currentScreen == 'user':
