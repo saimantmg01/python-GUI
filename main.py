@@ -10,28 +10,29 @@ hand = {}
 # a place to put books in for organization and convenient
 box = []
 #make the shelf
-shelf = 'shelf1'
-library[shelf] = {}
-for n in range(-1, len(data[0])):
-    book = data[n][0]
-    # Space for author and description
-    library[shelf][book] = []
-    library[shelf][book].append(data[n][1])
-    library[shelf][book].append(data[n][2])
+class Library:
+    shelf = 'shelf1'
+    library[shelf] = {}
+    for n in range(-1, len(data[0])):
+        book = data[n][0]
+        # Space for author and description
+        library[shelf][book] = []
+        library[shelf][book].append(data[n][1])
+        library[shelf][book].append(data[n][2])
 #^
 #|
 # to make another shelf you need to do this process again
 
 # user input for taking out book
 def take_out():
-    if len(library[shelf]) == 0:
+    if len(library[Library.shelf]) == 0:
         print("There aren't any books left")
         main()
     keep_going = 'y'
     while keep_going == 'y':
         x = 1
         print('Choose a book to take out')
-        for key in library[shelf]:
+        for key in library[Library.shelf]:
             print(f"{x}. {key}")
             x = x + 1
             box.append(key)
@@ -43,19 +44,20 @@ def take_out():
         i = i-1
         print(f"You chose, {box[i]}")
         # author
-        print(f"by {library[shelf][box[i]][1]}")
+        print(f"by {library[Library.shelf][box[i]][1]}")
         # description
-        print(f"it is about {library[shelf][box[i]][0]}")
+        print(f"it is about {library[Library.shelf][box[i]][0]}")
         book = box[i]
         hand[book] = []
-        hand[book].append(library[shelf][box[i]][0])
-        hand[book].append(library[shelf][box[i]][1])
+        hand[book].append(library[Library.shelf][box[i]][0])
+        hand[book].append(library[Library.shelf][box[i]][1])
+
         print("You have")
         print(hand)
-        del library[shelf][box[i]]
+        del library[Library.shelf][box[i]]
         box.clear()
         # check if the library shelf is empty
-        if len(library[shelf]) == 0:
+        if len(library[Library.shelf]) == 0:
             print("There aren't any books left")
             break
         keep_going = input('Do you want to take out another book yes = y or no = n: ')
@@ -82,9 +84,9 @@ def put_in():
             i = int(input())      
         i = i-1
         book = box[i]
-        library[shelf][book] = []
-        library[shelf][book].append(hand[book][0])
-        library[shelf][book].append(hand[book][1])
+        library[Library.shelf][book] = []
+        library[Library.shelf][book].append(hand[book][0])
+        library[Library.shelf][book].append(hand[book][1])
         print(library)
         del hand[box[i]]
         box.clear()
@@ -129,7 +131,7 @@ def get_reviews(book):
     info = l[find_book(book,l)]
     if len(info) < 4:
         return ''
-    return [i.replace('\n','') for i in info[3].split('|')]
+    return info[3].split('|')
 
 #removes all reviews from a book
 def clear_reviews(book):
@@ -143,7 +145,6 @@ def clear_reviews(book):
     with open("test.csv",'w') as f:
         for i in l:
             f.write(','.join(i))
-
 
 def main():
     do_something = 0
@@ -164,5 +165,3 @@ def main():
 # library['shelf'] -> {[book1... dic1...],[],[]....} everything in shelf
 # library['shelf'][0] -> book1... dic1... book1's stuff
 # library['shelf'][0][0] -> just the name of book1
-# test here type somthing
-# print(get_reviews('Bone'))

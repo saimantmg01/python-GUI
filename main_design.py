@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow, QButtonGroup, QVBoxLayout, QLabel, QGroupBox, QGridLayout, QRadioButton
 import sys
+from main import *
 
 class Main_UI(QMainWindow):
     def __init__(self):
@@ -14,11 +15,16 @@ class Main_UI(QMainWindow):
         self.Welcome = QtWidgets.QWidget()
         # 2nd widget for application - main content shows library
         self.Display = QtWidgets.QWidget()
+
+
         #run the entire code for application
         self.initUI()
 
 
     def initUI(self):
+
+        self.selectedBook = []
+        
         #setup welcome window
         self.Welcome_Window()
         #setup display window
@@ -32,6 +38,40 @@ class Main_UI(QMainWindow):
         #call the event/functions
         #when name is submitted go to main content which shows library contents, history and others
         self.SubmitButton.clicked.connect(self.showDisplay)
+        self.TakeOutBookButton.clicked.connect(self.takeOutBook)
+    
+    def takeOutBook(self):
+        if len(self.selectedBook) != 0:
+            selectedBookName =  self.selectedBook[0][0]
+
+        
+            hand[selectedBookName] = []
+            hand[selectedBookName].append(self.selectedBook[0][1][0])
+            hand[selectedBookName].append(self.selectedBook[0][1][1])
+            
+            #user has this book
+            # print(f'User has this books in possession: {hand}')
+
+            del library[Library.shelf][selectedBookName]
+           
+           
+            layout = self.BookWidget.layout()
+            for i in range(layout.count()):
+                widgetItem = layout.itemAt(i)
+                
+                qLabelName = widgetItem.widget().children()[1]
+                if qLabelName.objectName() == selectedBookName:
+                    layout.removeWidget(widgetItem.widget())
+                    self.BookGridLayout = self._createBookGrid()
+                    
+            
+            
+            
+            
+
+            # take_out()
+        else:
+            print("Please select a book")
 
 
     def Welcome_Window(self):
@@ -85,6 +125,7 @@ class Main_UI(QMainWindow):
         #buttons assocated with action widget
         self.TakeOutBookButton = QtWidgets.QPushButton(self.ActionWidget)
         self.TakeOutBookButton.setGeometry(QtCore.QRect(90, 40, 91, 23))
+        
         self.ReturnBookButton = QtWidgets.QPushButton(self.ActionWidget)
         self.ReturnBookButton.setGeometry(QtCore.QRect(90, 80, 91, 23))
         self.pushButton = QtWidgets.QPushButton(self.ActionWidget)
@@ -118,7 +159,6 @@ class Main_UI(QMainWindow):
 
         ########
         #adds all the books retrieved from the back end to book widget
-        self.data = self.getLibraryInfo()
         self.ButttonGroup  = QButtonGroup(self);
 
         self.ButttonGroup.buttonClicked[int].connect(self.show_content)
@@ -131,21 +171,6 @@ class Main_UI(QMainWindow):
         # add Display Widget on stacked widget
         self.stackedWidget.addWidget(self.Display)
 
-    def getLibraryInfo(self):
-        data = {'Shelf1': {'Catcher in the Rye': ['Fiction', 'J.D. Salinger'],
-            'Don Quixote': ['Fiction', 'Miguel de Cervantes'],
-            'One Hundred Years of Solitude': ['Fiction',
-                                            'Gabriel Garcia Marquez']},
-                'Shelf2': {'Hamlet': ['Fiction', 'William Shakespeare'],
-                            'Moby Dick': ['Fiction', 'Herman Melville'],
-                            'Odyssey': ['Fiction', 'Homer'],
-                            'The Great Gatsby': ['Fiction', 'F.Scott Fitzgerald'],
-                            'War and Peace ': ['Fiction', 'Leo Tolstoy']},
-                'Shelf3': {'The Complete Works of Plato': ['Non Fiction', 'Plato'],
-                            'The Diary of a Young Girl': ['Non fiction', 'Anne Frank'],
-                            'Walden': ['Non fiction', 'Henry David Thoreau']}}
-                        
-        return data
 
    
     
@@ -155,7 +180,7 @@ class Main_UI(QMainWindow):
         counter = 0
     
         # data = self.getLibraryInfo()
-        for row, books in self.data.items():
+        for row, books in library.items():
             row = int(row[-1]) - 1
             for col, info in enumerate(books.items()):
                 bookName = info[0]
@@ -195,10 +220,13 @@ class Main_UI(QMainWindow):
         
     def show_content(self, id):
         counter = 0
-        for _, books in self.data.items():
+        for _, books in library.items():
             for _, info in enumerate(books.items()):
                 if counter == id:
-                    print(info)
+                    if len(self.selectedBook) == 0:
+                        self.selectedBook.append(info)
+                    else:
+                        self.selectedBook[0] = info
                 counter+=1
 
     def showDisplay(self):
