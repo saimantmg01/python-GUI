@@ -17,13 +17,12 @@ class Main_UI(QMainWindow):
         self.Display = QtWidgets.QWidget()
 
 
+        self.selectedBook = []
         #run the entire code for application
         self.initUI()
 
 
     def initUI(self):
-
-        self.selectedBook = []
         
         #setup welcome window
         self.Welcome_Window()
@@ -47,31 +46,98 @@ class Main_UI(QMainWindow):
             print("you have selected library books")
         elif id == 1:
             print("you have selected user books")
+            
+            # self.icons = {}
+            # GridLayout = QGridLayout()
+            # counter = 0
+            # row = 0
+            # col = -1
+            # layout = self.BookWidget.layout()
+            # while(layout.count() != 0):
+            #     widgetItem = layout.takeAt(0)
+                
+            #     layout.removeWidget(widgetItem.widget())
+                
+            
+            
+            # for bookName, info in hand.items():
+            #     col += 1
+            #     if col % 3 == 0 & col != 0:
+            #         col = 0
+            #         row += 1
+
+                
+                
+
+            #     image = QLabel()
+            #     image.setText("")
+            #     image.setPixmap(QtGui.QPixmap("book.png"))
+            #     image.setScaledContents(True)
+            #     image.setFixedSize(70, 70)
+
+            #     image.setObjectName(bookName)
+
         
+            #     box = QGroupBox(bookName)
+            #     boxLayout = QVBoxLayout()
+            #     box.setLayout(boxLayout)
+            
+            
+            
+
+            #     boxLayout.addWidget(image)
+
+            #     button = QRadioButton()
+            #     button.setText("")
+            #     self.UserButtonGroup.addButton(button, counter);
+            #     counter+=1
+            #     boxLayout.addWidget(button)
+
+            #     self.icons[bookName] =  box
+            #     layout.addChildWidget(box)
+                
+                # GridLayout.addWidget(self.icons[bookName], row, col)
+            # GridLayout.setGeometry(QtCore.QRect(200, 20, 100, 100))
+           
+            
+           
+            
+
+           
     
     def takeOutBook(self):
         if len(self.selectedBook) != 0:
-            selectedBookName =  self.selectedBook[0][0]
+            selectedBookName =  self.selectedBook[0]
 
+            
+            for _, books in library.items():
+                for bookName, info in books.items():
+                    if bookName == selectedBookName:
+                        hand[bookName] = info
+                        break;      
+            
         
-            hand[selectedBookName] = []
-            hand[selectedBookName].append(self.selectedBook[0][1][0])
-            hand[selectedBookName].append(self.selectedBook[0][1][1])
             
             #user has this book
             # print(f'User has this books in possession: {hand}')
-
-            del library[Library.shelf][selectedBookName]
-           
+            
+            if selectedBookName in library[Library.shelf]:
+                del library[Library.shelf][selectedBookName]
            
             layout = self.BookWidget.layout()
+           
+            widgetToRemove =  []
             for i in range(layout.count()):
                 widgetItem = layout.itemAt(i)
-                
-                qLabelName = widgetItem.widget().children()[1]
-                if qLabelName.objectName() == selectedBookName:
-                    layout.removeWidget(widgetItem.widget())
-                    self.BookGridLayout = self._createBookGrid()
+                if widgetItem is not None:
+                    qLabelName = widgetItem.widget().children()[1]
+                    if qLabelName.objectName() == selectedBookName:
+                        widgetToRemove.append(widgetItem.widget())
+
+            if len(widgetToRemove) != 0:
+                layout.removeWidget(widgetToRemove[0])
+            self.BookGridLayout = self._createBookGrid()
+            
 
         
             self.historyContent.addItem(f"-{self.input.text()} has taken out {selectedBookName}")
@@ -176,13 +242,18 @@ class Main_UI(QMainWindow):
         self.SelectBooks.setEditable(False)
         self.SelectBooks.addItem("")
         self.SelectBooks.addItem("")
+        
+
+        
 
         ########
         #adds all the books retrieved from the back end to book widget
         self.ButttonGroup  = QButtonGroup(self);
-        self.UserButttonGroup  = QButtonGroup(self);
+        self.UserButtonGroup  = QButtonGroup(self);
 
         self.ButttonGroup.buttonClicked[int].connect(self.show_content)
+        
+        self.UserButtonGroup.buttonClicked[int].connect(self.userShowContent)
 
         self.BookGridLayout = self._createBookGrid()
         self.BookWidget.setLayout(self.BookGridLayout)
@@ -219,9 +290,13 @@ class Main_UI(QMainWindow):
                 boxLayout = QVBoxLayout()
                 box.setLayout(boxLayout)
             
+              
+            
+
                 boxLayout.addWidget(image)
 
                 button = QRadioButton()
+                button.setCheckable(True)
                 button.setText("")
                 self.ButttonGroup.addButton(button, counter);
                 counter+=1
@@ -237,15 +312,24 @@ class Main_UI(QMainWindow):
 
         
     def show_content(self, id):
+        
+        selected = self.ButttonGroup.button(id).parentWidget().children()[1].objectName()
+        if len(self.selectedBook) == 0:
+            self.selectedBook.append(selected)
+        else:
+            self.selectedBook[0] = selected
+        # counter = 0
+        
+
+    def userShowContent(self, id):
         counter = 0
-        for _, books in library.items():
-            for _, info in enumerate(books.items()):
-                if counter == id:
-                    if len(self.selectedBook) == 0:
-                        self.selectedBook.append(info)
-                    else:
-                        self.selectedBook[0] = info
-                counter+=1
+        for bookName, info in hand.items():
+            if counter == id:
+                if len(self.selectedBook) == 0:
+                    self.selectedBook.append(info)
+                else:
+                    self.selectedBook[0] = info
+            counter+=1
 
     def showDisplay(self):
         #change the current widget in stacked widget to display widget window
@@ -286,6 +370,11 @@ class Main_UI(QMainWindow):
             self.PreviewContents.setText(book[1][0])
             self.PreviewContents.adjustSize()
         
+
+
+
+
+
 
 def window():
     #setup the app to run
