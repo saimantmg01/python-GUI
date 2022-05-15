@@ -1,5 +1,19 @@
 from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMainWindow, QButtonGroup, QVBoxLayout, QLabel, QGroupBox, QGridLayout, QRadioButton, QListView, QListWidget, QComboBox
+from PyQt5.QtWidgets import (
+                             QApplication, 
+                             QMainWindow, 
+                             QMainWindow,  
+                             QButtonGroup, 
+                             QVBoxLayout, 
+                             QLabel,  
+                             QGroupBox, 
+                             QGridLayout, 
+                             QRadioButton, 
+                             QListView, 
+                             QListWidget, 
+                             QComboBox, 
+                             QMessageBox
+                            )
 import sys
 from main import *
  
@@ -17,6 +31,7 @@ class Main_UI(QMainWindow):
         self.Display = QtWidgets.QWidget()
         self.selectedTakeOutBook = []
         self.selectedReturnBook = []
+        self.currentScreen = "library"
         #run the entire code for application
         self.initUI()
  
@@ -64,6 +79,11 @@ class Main_UI(QMainWindow):
 
                 self.historyContent.addItem(f"-{self.input.text()} has returned {returnBook}")
                 self.historyContent.adjustSize()
+                self.update_user_label()
+        elif len(self.selectedTakeOutBook) != 0:
+            self.showPopup("return");
+        elif len(self.selectedReturnBook) == 0:
+            self.showPopup("select");
                 
                 
 
@@ -84,6 +104,7 @@ class Main_UI(QMainWindow):
 
     def handleComboSelection(self, id):
         if id == 0:
+            self.currentScreen = "library"
             
 
             layout = self.BookWidget.layout()
@@ -120,6 +141,7 @@ class Main_UI(QMainWindow):
                     boxLayout.addWidget(button)
                     layout.addWidget(box)
         elif id == 1:
+            self.currentScreen = "user"
             self.icons = {}
             layout = self.BookWidget.layout()
            
@@ -201,10 +223,13 @@ class Main_UI(QMainWindow):
 
             self.historyContent.addItem(f"-{self.input.text()} has taken out {selectedBookName}")
             self.historyContent.adjustSize()  
- 
+            self.update_user_label()
             # take_out()
-        else:
-            print("Please select a book")
+        elif len(self.selectedReturnBook) != 0:
+            self.showPopup("takeout");
+        elif len(self.selectedTakeOutBook) == 0:
+            self.showPopup("select");
+        
  
  
     def Welcome_Window(self):
@@ -392,9 +417,14 @@ class Main_UI(QMainWindow):
     def showDisplay(self):
         #change the current widget in stacked widget to display widget window
         self.stackedWidget.setCurrentWidget(self.Display)
-        #set text on promptlabel inside the User to bear name of what user entered in library screen
-        self.promptlabel.setText(f"Name:  {self.input.text()}")
+        self.update_user_label()
  
+    def update_user_label(self):
+        #set text on promptlabel inside the User to bear name of what user entered in library screen
+        self.promptlabel.setText(f"Name:  {self.input.text()} \n Books: {len(hand.values())}")
+        self.promptlabel.adjustSize()
+
+
     def settingtext(self):
         self.label1.setText("Welcome to World\'s Best Library")
         self.label1.adjustSize()
@@ -431,13 +461,41 @@ class Main_UI(QMainWindow):
                     info  = value[book][0]
                     self.PreviewContents.setText(info)
                     self.PreviewContents.adjustSize()
+        elif len(self.selectedTakeOutBook) == 0 and self.currentScreen == 'library':
+            self.showPopup("select")
+
         if len(self.selectedReturnBook) != 0:
             book = self.selectedReturnBook[0]
             if book in hand:
                 info  = hand[book][0]
                 self.PreviewContents.setText(info)
                 self.PreviewContents.adjustSize()
+        elif len(self.selectedReturnBook) == 0 and self.currentScreen == 'user':
+            self.showPopup("select")
+        
  
+
+    def showPopup(self, valueType):
+        messages = {
+            "return": "Can not return a library book",
+            "takeout": "Can not take out a user book",
+            "select": "Please select a book"
+        }   
+
+        msg = QMessageBox()
+        #window title
+        msg.setWindowTitle("Alert")
+        # to set text
+        msg.setText("Alert!")
+        #icon to messagebox - warning,
+        msg.setIcon(QMessageBox.Warning)
+        # QmessageBox buttons - Ok
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok) #to default
+        # add more text beneath main line
+        msg.setInformativeText(messages[valueType])
+        # to run
+        x = msg.exec_()
 
 def window():
     #setup the app to run
@@ -449,4 +507,4 @@ def window():
     # do a clean exit. Close the application
     sys.exit(app.exec_())
  
-window()
+window()    
