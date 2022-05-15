@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (
                              QMessageBox
                             )
 import sys
-from main import *
 import csv
 
 #gets all the history of the books 
