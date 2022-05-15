@@ -1,1 +1,0 @@
-This project is made to be a library system with people and books.
