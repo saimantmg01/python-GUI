@@ -17,7 +17,8 @@ class Main_UI(QMainWindow):
         self.Display = QtWidgets.QWidget()
 
 
-        self.selectedBook = []
+        self.selectedTakeOutBook = []
+        self.selectedReturnBook = []
         #run the entire code for application
         self.initUI()
 
@@ -38,76 +39,140 @@ class Main_UI(QMainWindow):
         #when name is submitted go to main content which shows library contents, history and others
         self.SubmitButton.clicked.connect(self.showDisplay)
         self.TakeOutBookButton.clicked.connect(self.takeOutBook)
+        self.ReturnBookButton.clicked.connect(self.ReturnBook)
         self.pushButton.clicked.connect(self.preview_content)
         self.SelectBooks.activated.connect(self.handleComboSelection)
-    
+
+
+    def ReturnBook(self):
+        
+        if len(self.selectedReturnBook) != 0:
+            returnBook = self.selectedReturnBook.pop()
+            
+            if returnBook in hand:
+                returnBookInfo = hand[returnBook]
+                del hand[returnBook]
+
+                layout = self.BookWidget.layout()
+                for i in range(layout.count()):
+                    widgetItem = layout.itemAt(i)
+                    if widgetItem is not None:
+                        qLabelName = widgetItem.widget().children()[1]
+                        if qLabelName.objectName() == returnBook:
+                            widgetItem.widget().deleteLater()
+                            break
+
+                library[Library.shelf][returnBook] = returnBookInfo
+                
+
+                self.historyContent.addItem(f"-{self.input.text()} has returned {returnBook}")
+                self.historyContent.adjustSize()
+                
+                
+
+
+    def clear_grid(self,layout):
+        
+        
+        while(layout.count() != 0):
+            widgetItem = layout.takeAt(0).widget()
+            
+            widgetItem.deleteLater()
+
+    def clear_buttons(self):
+        for button in self.ButtonGroup.findChildren(QRadioButton):
+            button.deleteLater()
+
+
+
     def handleComboSelection(self, id):
         if id == 0:
-            print("you have selected library books")
+            
+            layout = self.BookWidget.layout()
+            self.clear_grid(layout)
+            self.clear_buttons()
+            counter = 0
+
+            
+            for row, books in library.items():
+                row = int(row[-1]) - 1
+                for col, info in enumerate(books.items()):
+                    bookName = info[0]
+
+                    image = QLabel()
+                    image.setText("")
+                    image.setPixmap(QtGui.QPixmap("book.png"))
+                    image.setScaledContents(True)
+                    image.setFixedSize(70, 70)
+
+                    image.setObjectName(bookName)
+
+            
+                    box = QGroupBox(bookName)
+                    boxLayout = QVBoxLayout()
+                    box.setLayout(boxLayout)
+                
+
+                    boxLayout.addWidget(image)
+
+                    button = QRadioButton()
+                    button.setCheckable(True)
+                    button.setText("")
+                    self.ButtonGroup.addButton(button, counter);
+                    counter+=1
+                    boxLayout.addWidget(button)
+                    layout.addWidget(box)
         elif id == 1:
-            print("you have selected user books")
-            
-            # self.icons = {}
-            # GridLayout = QGridLayout()
-            # counter = 0
-            # row = 0
-            # col = -1
-            # layout = self.BookWidget.layout()
-            # while(layout.count() != 0):
-            #     widgetItem = layout.takeAt(0)
-                
-            #     layout.removeWidget(widgetItem.widget())
-                
             
             
-            # for bookName, info in hand.items():
-            #     col += 1
-            #     if col % 3 == 0 & col != 0:
-            #         col = 0
-            #         row += 1
+            self.icons = {}
+            layout = self.BookWidget.layout()
+           
+            counter = 0
+            row = 0
+            col = -1
+           
+            
+            self.clear_grid(layout)     
+            
+            
+            
+            for bookName, info in hand.items():
+                col += 1
+                if col % 3 == 0 & col != 0:
+                    col = 0
+                    row += 1
 
-                
-                
+                image = QLabel()
+                image.setText("")
+                image.setPixmap(QtGui.QPixmap("book.png"))
+                image.setScaledContents(True)
+                image.setFixedSize(70, 70)
 
-            #     image = QLabel()
-            #     image.setText("")
-            #     image.setPixmap(QtGui.QPixmap("book.png"))
-            #     image.setScaledContents(True)
-            #     image.setFixedSize(70, 70)
-
-            #     image.setObjectName(bookName)
+                image.setObjectName(bookName)
 
         
-            #     box = QGroupBox(bookName)
-            #     boxLayout = QVBoxLayout()
-            #     box.setLayout(boxLayout)
-            
-            
+                box = QGroupBox(bookName)
+                boxLayout = QVBoxLayout()
+                box.setLayout(boxLayout)
             
 
-            #     boxLayout.addWidget(image)
+                boxLayout.addWidget(image)
 
-            #     button = QRadioButton()
-            #     button.setText("")
-            #     self.UserButtonGroup.addButton(button, counter);
-            #     counter+=1
-            #     boxLayout.addWidget(button)
+                button = QRadioButton()
+                button.setText("")
+                self.UserButtonGroup.addButton(button, counter);
+                counter+=1
+                boxLayout.addWidget(button)
 
-            #     self.icons[bookName] =  box
-            #     layout.addChildWidget(box)
+                self.icons[bookName] =  box
+                layout.addWidget(box, row, col)
                 
-                # GridLayout.addWidget(self.icons[bookName], row, col)
-            # GridLayout.setGeometry(QtCore.QRect(200, 20, 100, 100))
-           
-            
-           
-            
-
            
     
     def takeOutBook(self):
-        if len(self.selectedBook) != 0:
-            selectedBookName =  self.selectedBook[0]
+        if len(self.selectedTakeOutBook) != 0:
+            selectedBookName =  self.selectedTakeOutBook.pop()
 
             
             for _, books in library.items():
@@ -132,10 +197,12 @@ class Main_UI(QMainWindow):
                 if widgetItem is not None:
                     qLabelName = widgetItem.widget().children()[1]
                     if qLabelName.objectName() == selectedBookName:
-                        widgetToRemove.append(widgetItem.widget())
+                        widgetItem.widget().deleteLater()
+                        break
+                        # widgetToRemove.append(widgetItem.widget())
 
-            if len(widgetToRemove) != 0:
-                layout.removeWidget(widgetToRemove[0])
+            # if len(widgetToRemove) != 0:
+            #     layout.removeWidget(widgetToRemove[0])
             self.BookGridLayout = self._createBookGrid()
             
 
@@ -248,10 +315,10 @@ class Main_UI(QMainWindow):
 
         ########
         #adds all the books retrieved from the back end to book widget
-        self.ButttonGroup  = QButtonGroup(self);
+        self.ButtonGroup  = QButtonGroup(self);
         self.UserButtonGroup  = QButtonGroup(self);
 
-        self.ButttonGroup.buttonClicked[int].connect(self.show_content)
+        self.ButtonGroup.buttonClicked[int].connect(self.show_content)
         
         self.UserButtonGroup.buttonClicked[int].connect(self.userShowContent)
 
@@ -298,7 +365,7 @@ class Main_UI(QMainWindow):
                 button = QRadioButton()
                 button.setCheckable(True)
                 button.setText("")
-                self.ButttonGroup.addButton(button, counter);
+                self.ButtonGroup.addButton(button, counter);
                 counter+=1
                 boxLayout.addWidget(button)
 
@@ -313,23 +380,29 @@ class Main_UI(QMainWindow):
         
     def show_content(self, id):
         
-        selected = self.ButttonGroup.button(id).parentWidget().children()[1].objectName()
-        if len(self.selectedBook) == 0:
-            self.selectedBook.append(selected)
+        selected = self.ButtonGroup.button(id).parentWidget().children()[1].objectName()
+        if len(self.selectedTakeOutBook) == 0:
+            self.selectedTakeOutBook.append(selected)
         else:
-            self.selectedBook[0] = selected
+            self.selectedTakeOutBook[0] = selected
         # counter = 0
         
 
     def userShowContent(self, id):
-        counter = 0
-        for bookName, info in hand.items():
-            if counter == id:
-                if len(self.selectedBook) == 0:
-                    self.selectedBook.append(info)
-                else:
-                    self.selectedBook[0] = info
-            counter+=1
+        selected = self.UserButtonGroup.button(id).parentWidget().children()[1].objectName()
+        if len(self.selectedReturnBook) == 0:
+            self.selectedReturnBook.append(selected)
+        else:
+            self.selectedReturnBook[0] = selected
+        # print(buttonPressed)
+        # counter = 0
+        # for bookName, info in hand.items():
+        #     if counter == id:
+        #         if len(self.selectedBook) == 0:
+        #             self.selectedBook.append(info)
+        #         else:
+        #             self.selectedBook[0] = info
+        #     counter+=1
 
     def showDisplay(self):
         #change the current widget in stacked widget to display widget window
@@ -365,8 +438,8 @@ class Main_UI(QMainWindow):
         self.PreviewLabel.setText("Preview")
 
     def preview_content(self):
-        if len(self.selectedBook) != 0:
-            book = self.selectedBook[0]
+        if len(self.selectedTakeOutBook) != 0:
+            book = self.selectedTakeOutBook[0]
             self.PreviewContents.setText(book[1][0])
             self.PreviewContents.adjustSize()
         
